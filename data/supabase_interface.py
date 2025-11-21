@@ -352,9 +352,9 @@ class SupabaseInterface:
                     detail_query = """
                     INSERT INTO optimization_results (
                         run_id, hour, batch_load_mw, cooling_mode,
-                        temperature_f, electricity_price, total_cost,
+                        temperature_f, electricity_price,
                         water_usage_gallons
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s)
                     """
 
                     cur.execute(detail_query, (
@@ -364,7 +364,6 @@ class SupabaseInterface:
                         'water' if hour_data.get('water_cooling') else 'electric',
                         float(hour_data.get('temperature', 0)),
                         float(hour_data.get('electricity_price', 0)),
-                        float(hour_data.get('electricity_cost', 0) + hour_data.get('water_cost', 0)),
                         float(hour_data.get('water_cooling', 0) * 120)  # 120 gal/hour when water cooling
                     ))
 

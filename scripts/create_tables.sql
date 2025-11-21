@@ -74,7 +74,6 @@ CREATE TABLE IF NOT EXISTS optimization_results (
     cooling_mode VARCHAR(20), -- 'water' or 'electric'
     temperature_f DECIMAL(5,2),
     electricity_price DECIMAL(10,2),
-    total_cost DECIMAL(10,2),
     water_usage_gallons DECIMAL(10,2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
