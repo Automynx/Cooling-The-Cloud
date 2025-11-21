@@ -2,8 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FaPlay, FaArrowRight } from 'react-icons/fa';
 import CountUp from 'react-countup';
+import { useNavigate } from 'react-router-dom';
 
 function Hero() {
+  const navigate = useNavigate();
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -107,7 +110,7 @@ function Hero() {
             className="btn-primary flex items-center justify-center space-x-2"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => window.location.href = '/demo'}
+            onClick={() => navigate('/demo')}
           >
             <FaPlay className="w-4 h-4" />
             <span>Live Demo</span>

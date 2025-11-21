@@ -1,8 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaCloud } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 function Navigation({ isScrolled }) {
+  const navigate = useNavigate();
+
   return (
     <motion.nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -48,7 +51,7 @@ function Navigation({ isScrolled }) {
           className="btn-primary text-sm"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => window.location.href = '/demo'}
+          onClick={() => navigate('/demo')}
         >
           View Demo
         </motion.button>

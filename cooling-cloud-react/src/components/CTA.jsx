@@ -2,8 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { FaRocket, FaCalendar, FaEnvelope, FaArrowRight } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 function CTA() {
+  const navigate = useNavigate();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1
@@ -66,7 +68,7 @@ function CTA() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="btn-primary flex items-center justify-center space-x-2"
-                onClick={() => window.location.href = '/demo'}
+                onClick={() => navigate('/demo')}
               >
                 <FaRocket className="w-5 h-5" />
                 <span>Launch Demo</span>
