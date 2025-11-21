@@ -9,6 +9,18 @@ import json
 from typing import Dict, List, Tuple, Optional, Union
 from datetime import datetime, timedelta
 import os
+import sys
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Import Supabase interface if available
+try:
+    from data.supabase_interface import SupabaseInterface
+    SUPABASE_AVAILABLE = True
+except ImportError:
+    SUPABASE_AVAILABLE = False
+    print("Supabase interface not available, using fallback data sources")
 
 
 class DataInterface:
@@ -17,8 +29,12 @@ class DataInterface:
     Flexible enough to handle various formats from EIA and NOAA.
     """
 
-    def __init__(self):
-        """Initialize data interface with Arizona-specific defaults."""
+    def __init__(self, use_supabase: bool = True):
+        """Initialize data interface with Arizona-specific defaults.
+
+        Args:
+            use_supabase: Whether to use Supabase as primary data source
+        """
         # Arizona utility rate structure (APS Schedule E-32)
         self.peak_hours = list(range(15, 20))  # 3 PM - 8 PM
         self.peak_rate = 0.15  # $/kWh peak summer
@@ -27,6 +43,20 @@ class DataInterface:
 
         # Default Phoenix summer temperature pattern if needed
         self.default_temp_pattern = self._generate_phoenix_pattern()
+
+        # Initialize Supabase interface if available and requested
+        self.supabase = None
+        if use_supabase and SUPABASE_AVAILABLE:
+            try:
+                self.supabase = SupabaseInterface()
+                if self.supabase.test_connection():
+                    print("Successfully connected to Supabase")
+                else:
+                    print("Supabase connection failed, using fallback")
+                    self.supabase = None
+            except Exception as e:
+                print(f"Error initializing Supabase: {e}")
+                self.supabase = None
 
     def load_electricity_data(self,
                             data_source: Union[str, pd.DataFrame, Dict, List]) -> Dict:
@@ -254,19 +284,18 @@ class DataInterface:
         return prices
 
     def _generate_tou_prices(self) -> List[float]:
-        """Generate time-of-use prices based on APS rate schedule."""
+        """Generate simple time-of-use prices as fallback."""
+        # Simple TOU rates without variation
         prices = []
         for h in range(24):
             if h in self.peak_hours:  # Peak: 3-8 PM
-                price = self.peak_rate
+                price = 150  # $/MWh
             elif h in range(22, 24) or h in range(0, 6):  # Super off-peak
-                price = self.super_offpeak_rate
+                price = 25  # $/MWh
             else:  # Off-peak
-                price = self.offpeak_rate
+                price = 35  # $/MWh
 
-            # Add some variation
-            variation = np.random.uniform(0.95, 1.05)
-            prices.append(price * variation * 1000)  # Convert to $/MWh
+            prices.append(price)
 
         return prices
 
@@ -323,30 +352,89 @@ class DataInterface:
         return validated
 
     def prepare_optimization_data(self,
-                                  electricity_source: Union[str, pd.DataFrame, Dict, List],
-                                  weather_source: Union[str, pd.DataFrame, Dict, List],
-                                  date: Optional[str] = None) -> Dict:
+                                  electricity_source: Optional[Union[str, pd.DataFrame, Dict, List]] = None,
+                                  weather_source: Optional[Union[str, pd.DataFrame, Dict, List]] = None,
+                                  date: Optional[str] = None,
+                                  use_supabase: bool = True) -> Dict:
         """
         Main method to prepare all data for optimization.
 
         Args:
-            electricity_source: Electricity data from team member
-            weather_source: Weather data from team member
+            electricity_source: Electricity data from team member (optional if using Supabase)
+            weather_source: Weather data from team member (optional if using Supabase)
             date: Optional date string for the optimization period
+            use_supabase: Whether to try Supabase first for data
 
         Returns:
             Dict with all data needed for optimization
         """
-        # Load both data sources
-        elec_data = self.load_electricity_data(electricity_source)
-        temperatures = self.load_weather_data(weather_source)
+        # Parse date if provided
+        if date:
+            if isinstance(date, str):
+                target_date = datetime.strptime(date, '%Y-%m-%d')
+            else:
+                target_date = date
+        else:
+            target_date = datetime.now()
+
+        # Try Supabase first if available and requested
+        if use_supabase and self.supabase:
+            try:
+                # Get weather data from Supabase
+                temperatures = self.supabase.fetch_weather_data(target_date, hours=24)
+
+                # Get electricity prices (will use inference if not in database)
+                electricity_prices = self.supabase.get_electricity_prices(target_date, hours=24)
+
+                # Get water prices
+                water_prices = self.supabase.get_water_prices(target_date)
+
+                optimization_data = {
+                    'temperatures': temperatures,
+                    'electricity_prices': electricity_prices,
+                    'water_prices': water_prices,
+                    'grid_demand': None,  # Could be added to Supabase later
+                    'date': target_date.strftime('%Y-%m-%d'),
+                    'source': 'supabase',
+                    'metadata': {
+                        'peak_hours': self.peak_hours,
+                        'max_temp': max(temperatures),
+                        'min_temp': min(temperatures),
+                        'avg_price': np.mean(electricity_prices),
+                        'price_range': max(electricity_prices) - min(electricity_prices)
+                    }
+                }
+
+                # Validate data quality
+                self._validate_data(optimization_data)
+                return optimization_data
+
+            except Exception as e:
+                print(f"Error loading from Supabase: {e}")
+                print("Falling back to alternative data sources")
+
+        # Fallback to provided data sources or defaults
+        if electricity_source:
+            elec_data = self.load_electricity_data(electricity_source)
+        else:
+            elec_data = {'prices': self._generate_tou_prices()}
+
+        if weather_source:
+            temperatures = self.load_weather_data(weather_source)
+        else:
+            temperatures = self._generate_phoenix_pattern()
+
+        # Calculate water prices
+        water_prices = [3.24] * 24  # Default water price per 1000 gallons
 
         # Prepare final dataset
         optimization_data = {
             'temperatures': temperatures,
             'electricity_prices': elec_data['prices'],
+            'water_prices': water_prices,
             'grid_demand': elec_data.get('demand', None),
-            'date': date or datetime.now().strftime('%Y-%m-%d'),
+            'date': target_date.strftime('%Y-%m-%d'),
+            'source': 'local',
             'metadata': {
                 'peak_hours': self.peak_hours,
                 'max_temp': max(temperatures),
@@ -393,3 +481,39 @@ class DataInterface:
             optimization_data['electricity_prices'],
             optimization_data.get('grid_demand', None)
         )
+
+    def save_optimization_results(self, results: Dict) -> Optional[str]:
+        """
+        Save optimization results to Supabase if available.
+
+        Args:
+            results: Dictionary containing optimization results
+
+        Returns:
+            Run ID if saved successfully, None otherwise
+        """
+        if self.supabase:
+            try:
+                run_id = self.supabase.save_optimization_results(results)
+                return run_id
+            except Exception as e:
+                print(f"Error saving results to Supabase: {e}")
+                return None
+        else:
+            print("Supabase not available, results not saved to database")
+            return None
+
+    def get_optimization_history(self, limit: int = 10) -> pd.DataFrame:
+        """
+        Get recent optimization runs from Supabase.
+
+        Args:
+            limit: Number of recent runs to retrieve
+
+        Returns:
+            DataFrame with optimization history
+        """
+        if self.supabase:
+            return self.supabase.get_optimization_history(limit)
+        else:
+            return pd.DataFrame()
