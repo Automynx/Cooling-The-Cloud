@@ -48,7 +48,7 @@ function Navigation({ isScrolled }) {
           className="btn-primary text-sm"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => window.open('http://localhost:8501', '_blank')}
+          onClick={() => window.location.href = '/demo'}
         >
           View Demo
         </motion.button>

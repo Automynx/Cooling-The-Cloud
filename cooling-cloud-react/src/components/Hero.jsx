@@ -107,7 +107,7 @@ function Hero() {
             className="btn-primary flex items-center justify-center space-x-2"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => window.open('http://localhost:8501', '_blank')}
+            onClick={() => window.location.href = '/demo'}
           >
             <FaPlay className="w-4 h-4" />
             <span>Live Demo</span>

@@ -66,7 +66,7 @@ function CTA() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="btn-primary flex items-center justify-center space-x-2"
-                onClick={() => window.open('http://localhost:8501', '_blank')}
+                onClick={() => window.location.href = '/demo'}
               >
                 <FaRocket className="w-5 h-5" />
                 <span>Launch Demo</span>
