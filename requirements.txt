@@ -2,6 +2,7 @@
 python-dotenv>=1.0
 supabase>=2.0.0
 psycopg2-binary>=2.9.0
+
 # Core Optimization Libraries
 pyomo>=6.7.0
 gekko>=1.0.6
@@ -21,7 +22,6 @@ seaborn>=0.13.0
 
 # API and Data Fetching
 aiohttp>=3.9.0
-python-dotenv>=1.0.0
 
 # Utilities
 click>=8.1.0
