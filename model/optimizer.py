@@ -260,7 +260,7 @@ class ArizonaDataCenterOptimizer:
                 return e1 + (e2 - e1) * (temperature - t1) / (t2 - t1)
         return self.water_efficiency_curve[temps[-1]]
 
-    def solve(self, solver_name: str = 'glpk', time_limit: int = 300) -> Dict:
+    def solve(self, solver_name: str = 'highs', time_limit: int = 300) -> Dict:
         """
         Solve the optimization model.
 
@@ -275,7 +275,7 @@ class ArizonaDataCenterOptimizer:
             raise ValueError("Model not built. Call build_model() first.")
 
         # Try different solvers if primary fails
-        solvers_to_try = [solver_name, 'glpk', 'cbc', 'ipopt']
+        solvers_to_try = [solver_name, 'highs', 'glpk', 'cbc', 'ipopt']
 
         for solver in solvers_to_try:
             try:

@@ -50,8 +50,8 @@ def main():
     parser.add_argument(
         "--solver",
         type=str,
-        default="glpk",
-        choices=["glpk", "cbc", "gurobi", "cplex"],
+        default="highs",
+        choices=["highs", "glpk", "cbc", "gurobi", "cplex"],
         help="Optimization solver to use"
     )
     parser.add_argument(
