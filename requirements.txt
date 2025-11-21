@@ -1,48 +1,6 @@
-# Environment and Database
-python-dotenv>=1.0
 supabase>=2.0.0
-psycopg2-binary>=2.9.0
-
-# Core Optimization Libraries
-pyomo>=6.7.0
-gekko>=1.0.6
-scipy>=1.11.0
-numpy>=1.24.0
-
-# Data Processing
-pandas>=2.1.0
 requests>=2.31.0
+pandas>=2.0.0
 python-dateutil>=2.8.2
-
-# Visualization
-plotly>=5.18.0
-dash>=2.14.0
-matplotlib>=3.8.0
-seaborn>=0.13.0
-
-# API and Data Fetching
-aiohttp>=3.9.0
-
-# Utilities
-click>=8.1.0
-tqdm>=4.66.0
-pyyaml>=6.0.1
-
-# Web Frameworks and Dashboard
-streamlit>=1.28.0
-fastapi>=0.104.0
-uvicorn>=0.24.0
-
-# Solvers
-highspy>=1.12.0
-
-# Development Tools
-pytest>=7.4.0
-black>=23.0.0
-flake8>=6.1.0
-ipython>=8.18.0
-jupyter>=1.0.0
-
-# Solver (optional - for local solving)
-# Note: Team should install GLPK or CBC solver separately
-# Instructions in README_SOLVERS.md
+schedule>=1.2.0
+python-dotenv>=1.0.0
