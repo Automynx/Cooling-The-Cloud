@@ -3,6 +3,13 @@
 """
 Main entry point for Arizona Data Center Optimization
 IISE Hackathon - Cooling the Cloud
+
+Usage:
+    python main.py --electricity-data <path> --weather-data <path>
+    python main.py --demo  # Run with sample data
+
+Team: Cooling the Cloud
+Theme: Electricity in Arizona
 """
 
 import os
@@ -50,8 +57,8 @@ def main():
     parser.add_argument(
         "--solver",
         type=str,
-        default="highs",
-        choices=["highs", "glpk", "cbc", "gurobi", "cplex"],
+        default="glpk",
+        choices=["glpk", "cbc", "gurobi", "cplex"],
         help="Optimization solver to use"
     )
     parser.add_argument(
@@ -62,11 +69,14 @@ def main():
 
     args = parser.parse_args()
 
-    print("\n" + "="*60)
-    print("     COOLING THE CLOUD - OPTIMIZATION TOOL")
-    print("  Arizona Data Center Electricity & Cooling Optimization")
-    print("           IISE Hackathon Submission")
-    print("="*60 + "\n")
+    print("""
+    TPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPW
+    Q           COOLING THE CLOUD - OPTIMIZATION TOOL          Q
+    Q                                                          Q
+    Q  Arizona Data Center Electricity & Cooling Optimization  Q
+    Q              IISE Hackathon Submission                   Q
+    ZPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP]
+    """)
 
     # Initialize components
     data_interface = DataInterface()
@@ -74,7 +84,7 @@ def main():
 
     # Load data based on arguments
     if args.demo:
-        print("Running in DEMO mode with sample data...")
+        print("= Running in DEMO mode with sample data...")
         electricity_data, weather_data = create_demo_data()
     else:
         if not args.electricity_data or not args.weather_data:
@@ -82,14 +92,14 @@ def main():
             print("   Or use --demo for demonstration mode")
             sys.exit(1)
 
-        print(f"Loading electricity data from: {args.electricity_data}")
+        print(f"=� Loading electricity data from: {args.electricity_data}")
         electricity_data = args.electricity_data
 
-        print(f"Loading weather data from: {args.weather_data}")
+        print(f"<!  Loading weather data from: {args.weather_data}")
         weather_data = args.weather_data
 
     # Prepare data for optimization
-    print("Preparing data for optimization...")
+    print("=' Preparing data for optimization...")
     try:
         optimization_data = data_interface.prepare_optimization_data(
             electricity_source=electricity_data,
@@ -97,24 +107,24 @@ def main():
             date=args.date
         )
 
-        print("Data loaded successfully!")
+        print(f" Data loaded successfully!")
         print(f"   - Date: {optimization_data['date']}")
-        print(f"   - Temperature range: {optimization_data['metadata']['min_temp']:.1f}F - "
-              f"{optimization_data['metadata']['max_temp']:.1f}F")
+        print(f"   - Temperature range: {optimization_data['metadata']['min_temp']:.1f}�F - "
+              f"{optimization_data['metadata']['max_temp']:.1f}�F")
         print(f"   - Electricity price range: ${optimization_data['metadata']['avg_price']:.2f}/MWh")
 
     except Exception as e:
-        print(f"ERROR loading data: {e}")
+        print(f"L Error loading data: {e}")
         sys.exit(1)
 
     # Extract data for model
     temperatures, prices, demand = data_interface.export_to_model_format(optimization_data)
 
     # Build optimization model
-    print("\nBuilding optimization model...")
-    print("   - Decision variables: 10+")
-    print("   - Constraints: 10+")
-    print("   - Multi-objective optimization")
+    print("\n<�  Building optimization model...")
+    print(f"   - Decision variables: 10+")
+    print(f"   - Constraints: 10+")
+    print(f"   - Multi-objective optimization")
 
     try:
         model = optimizer.build_model(
@@ -122,28 +132,28 @@ def main():
             electricity_prices=prices,
             grid_demand=demand
         )
-        print("Model built successfully!")
+        print(" Model built successfully!")
 
     except Exception as e:
-        print(f"ERROR building model: {e}")
+        print(f"L Error building model: {e}")
         sys.exit(1)
 
     # Solve optimization
-    print(f"\nSolving optimization with {args.solver.upper()} solver...")
+    print(f"\n= Solving optimization with {args.solver.upper()} solver...")
     print("   This may take a few moments...")
 
     try:
         results = optimizer.solve(solver_name=args.solver, time_limit=300)
-        print("Optimization completed successfully!")
+        print(" Optimization completed successfully!")
 
     except Exception as e:
-        print(f"ERROR solving optimization: {e}")
+        print(f"L Error solving optimization: {e}")
         print("   Trying fallback solver...")
         try:
             results = optimizer.solve(solver_name='glpk', time_limit=300)
-            print("Optimization completed with GLPK solver!")
+            print(" Optimization completed with GLPK solver!")
         except:
-            print("ERROR: Could not solve optimization. Please check solver installation.")
+            print("L Could not solve optimization. Please check solver installation.")
             sys.exit(1)
 
     # Display results
@@ -151,22 +161,22 @@ def main():
     print("                    OPTIMIZATION RESULTS")
     print("="*60)
 
-    print("\n>>> COST SAVINGS:")
+    print("\n=� COST SAVINGS:")
     print(f"   Daily Savings: ${results['savings']['daily_savings']:,.2f}")
     print(f"   Annual Savings: ${results['savings']['annual_savings']:,.2f}")
     print(f"   Savings Rate: {results['savings']['percentage_saved']:.1f}%")
 
-    print("\n>>> WATER CONSERVATION:")
+    print("\n=� WATER CONSERVATION:")
     print(f"   Water Used: {results['environmental']['water_used_gallons']:,.0f} gallons/day")
     print(f"   Water Saved: {results['environmental']['water_saved_gallons']:,.0f} gallons/day")
     print(f"   Equivalent to: {results['environmental']['water_saved_gallons']/325851:.1f} Olympic pools/year")
 
-    print("\n>>> GRID IMPACT:")
+    print("\n� GRID IMPACT:")
     print(f"   Peak Demand: {results['summary']['peak_demand_mw']:.1f} MW")
     print(f"   Peak Reduction: {results['environmental']['peak_reduction_mw']:.1f} MW")
     print(f"   Equivalent to: Powering {results['environmental']['peak_reduction_mw']*1000:.0f} homes")
 
-    print("\n>>> ENVIRONMENTAL BENEFIT:")
+    print("\n<1 ENVIRONMENTAL BENEFIT:")
     print(f"   Carbon Avoided: {results['environmental']['carbon_avoided_tons']:.2f} tons CO2/day")
     print(f"   Annual Impact: {results['environmental']['carbon_avoided_tons']*365:.1f} tons CO2/year")
     print(f"   Equivalent to: {results['environmental']['carbon_avoided_tons']*365/4.6:.0f} cars off the road")
@@ -175,20 +185,20 @@ def main():
     results_file = f"results_{args.date.replace('-', '')}.json"
     with open(results_file, 'w') as f:
         json.dump(results, f, indent=2, default=str)
-    print(f"\nResults saved to: {results_file}")
+    print(f"\n=� Results saved to: {results_file}")
 
     # Export to CSV if requested
     if args.export:
         export_file = f"optimization_results_{args.date.replace('-', '')}.csv"
         df = pd.DataFrame(results['hourly_data'])
         df.to_csv(export_file, index=False)
-        print(f"Hourly data exported to: {export_file}")
+        print(f"=� Hourly data exported to: {export_file}")
 
     # Print detailed report
     print("\n" + optimizer.generate_report())
 
-    print("\nOptimization complete! Thank you for using Cooling the Cloud.")
-    print("For Arizona's sustainable data center future!")
+    print("\n( Optimization complete! Thank you for using Cooling the Cloud.")
+    print("   For Arizona's sustainable data center future! <5")
 
 
 def create_demo_data():
