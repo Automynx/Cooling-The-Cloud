@@ -19,10 +19,7 @@ Water Usage vs. Cooling: Data centers use massive amounts of water for evaporati
 The Optimization Goal:
 Minimize the combined cost of Electricity + Water for a theoretical 50MW Data Center in Phoenix over a 24-hour period.
 Decision Variable 1 (Load Shifting): When do we run "batch processing" jobs? (Move them away from 5 PM peak).
-Decision Variable 2 (Cooling Mode): At hour 
-t
-t
-, do we use Water Cooling (high water use, low energy) or Chiller Cooling (zero water use, high energy)? This depends on the outside air temperature.
+Decision Variable 2 (Cooling Mode): At hour any certain hour do we use Water Cooling (high water use, low energy) or Chiller Cooling (zero water use, high energy)? This depends on the outside air temperature.
 The Two Public Data Sets (Links)
 1. Electricity Demand & Pricing Data (The "Grid" Component)
 Source: U.S. Energy Information Administration (EIA) Hourly Grid Monitor.
