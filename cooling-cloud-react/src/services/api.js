@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // API configuration
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://api.cooling-the-cloud.com'
+  ? ''  // Same domain when both frontend and API are on Vercel
   : 'http://localhost:5000';
 
 const api = axios.create({
