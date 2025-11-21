@@ -29,8 +29,10 @@ wheels/
 
 # Environment variables
 .env
+.env.*
 .env.local
 .env.*.local
+*.env
 config/api_keys.json
 
 # Data files (too large for git)
