@@ -351,20 +351,31 @@ class SupabaseInterface:
                 for hour_data in results['hourly_data']:
                     detail_query = """
                     INSERT INTO optimization_results (
-                        run_id, hour, batch_load_mw, cooling_mode,
-                        temperature_f, electricity_price,
-                        water_usage_gallons
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        run_id, run_timestamp, hour, batch_load_mw, total_load_mw,
+                        cooling_mode, water_cooling_active,
+                        hourly_cost, electricity_cost, water_cost,
+                        water_usage_gallons, temperature_f, electricity_price
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """
+
+                    water_cooling = hour_data.get('water_cooling', 0)
+                    elec_cost = hour_data.get('electricity_cost', 0)
+                    water_cost = hour_data.get('water_cost', 0)
 
                     cur.execute(detail_query, (
                         run_id,
+                        datetime.now(),  # run_timestamp
                         hour_data['hour'],
                         float(hour_data.get('batch_load_mw', 0)),
-                        'water' if hour_data.get('water_cooling') else 'electric',
+                        float(hour_data.get('total_load_mw', 0)),
+                        'water' if water_cooling else 'electric',
+                        bool(water_cooling),  # water_cooling_active
+                        float(elec_cost + water_cost),  # hourly_cost
+                        float(elec_cost),  # electricity_cost
+                        float(water_cost),  # water_cost
+                        float(water_cooling * 120),  # water_usage_gallons
                         float(hour_data.get('temperature', 0)),
-                        float(hour_data.get('electricity_price', 0)),
-                        float(hour_data.get('water_cooling', 0) * 120)  # 120 gal/hour when water cooling
+                        float(hour_data.get('electricity_price', 0))
                     ))
 
             self.conn.commit()
