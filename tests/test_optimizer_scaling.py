@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Test the optimizer with 2000MW scaling."""
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from model.optimizer_linear import LinearDataCenterOptimizer
 from datetime import datetime
 import numpy as np

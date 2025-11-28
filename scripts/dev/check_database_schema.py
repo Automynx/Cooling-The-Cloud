@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """
 Check actual database schema in Supabase
+
+Dev utility script to inspect database table structures.
+Run from repo root: python scripts/dev/check_database_schema.py
 """
 
 import sys
 import os
 from dotenv import load_dotenv
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add repo root to path (go up 2 levels from scripts/dev/)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from data.api.store_to_postgres import connect_db
 
 load_dotenv()

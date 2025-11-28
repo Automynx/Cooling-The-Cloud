@@ -42,14 +42,16 @@ Cooling-The-Cloud/
 │   └── api_keys.json            # API keys (DO NOT COMMIT)
 │
 ├── scripts/              # Utility scripts
-│   ├── run_optimization.sh      # Main execution script
-│   ├── download_data.py         # Data download helper
-│   └── test_integration.py      # Integration test script
+│   ├── fetch_eia.py              # Fetch EIA electricity data
+│   ├── fetch_prices.py           # Fetch electricity prices
+│   └── fetch_water_index.py      # Fetch water usage data
 │
 ├── tests/                # Test files
-│   ├── test_optimizer.py         # Model tests
-│   ├── test_data_api.py          # API tests
-│   └── test_data_csv.py          # CSV processing tests
+│   ├── test_linear.py            # Linear model tests
+│   ├── test_integration.py       # Integration tests
+│   ├── test_production_system.py # Production system tests
+│   ├── test_optimizer_scaling.py # Scaling tests
+│   └── __init__.py
 │
 └── docs/                 # Documentation
     ├── API_GUIDE.md             # API integration guide

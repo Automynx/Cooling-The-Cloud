@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """
 Explore Supabase Database - See what tables and data we have
+
+Dev utility script to explore database tables, structure, and sample data.
+Useful for new developers to understand the data schema.
+Run from repo root: python scripts/dev/explore_supabase_data.py
 """
 
 import os
@@ -12,8 +16,8 @@ from dotenv import load_dotenv
 from datetime import datetime
 import json
 
-# Add repo root to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add repo root to path (go up 2 levels from scripts/dev/)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from data.api.store_to_postgres import connect_db
 
 load_dotenv()

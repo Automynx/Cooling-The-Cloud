@@ -3,7 +3,7 @@ import axios from 'axios';
 // API configuration
 const API_BASE_URL = process.env.NODE_ENV === 'production'
   ? ''  // Same domain when both frontend and API are on Vercel
-  : 'http://localhost:5001';
+  : 'http://localhost:5000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
